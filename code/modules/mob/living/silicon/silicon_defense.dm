@@ -63,9 +63,21 @@
 			playsound(loc, 'sound/weapons/thudswoosh.ogg', 50, TRUE, -1)
 		if("grab")
 			grabbedby(M)
-		else
+		if(INTENT_HARM)
+			var/obj/item/organ/external/affecting = M.get_organ("[M.hand ? "l" : "r" ]_hand")
 			M.do_attack_animation(src, ATTACK_EFFECT_PUNCH)
 			playsound(loc, 'sound/effects/bang.ogg', 10, 1)
-			visible_message("<span class='notice'>[M] punches [src], but doesn't leave a dent.</span>", \
-						"<span class='notice'>[M] punches [src], but doesn't leave a dent.</span>")
+			if(!M.gloves && !HAS_TRAIT(M, TRAIT_PIERCEIMMUNE) && !affecting.is_robotic()) //checks if wearing gloves, augmented, or if IPC/Golem they should be immune.
+				if(affecting.receive_damage(rand(5, 10)))
+					M.UpdateDamageIcon()
+				visible_message("<span class='userdanger'>[M] punches [src], hurting themself in the process!</span>", \
+						"<span class='userdanger'>[M] punches [src], hurting themself in the process!</span>")
+			else
+				visible_message("<span class='notice'>[M] punches [src], but doesn't leave a dent.</span>", \
+				"<span class='notice'>[M] punches [src], but doesn't leave a dent.</span>")
+		else
+			M.do_attack_animation(src, ATTACK_EFFECT_DISARM)
+			playsound(loc, 'sound/effects/bang.ogg', 10, 1)
+			visible_message("<span class='notice'>[M] lightly smacks [src], but doesn't leave a dent.</span>", \
+						"<span class='notice'>[M] lightly smacks [src], but doesn't leave a dent.</span>")
 	return FALSE
